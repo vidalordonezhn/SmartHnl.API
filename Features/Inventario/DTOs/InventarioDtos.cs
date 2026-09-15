@@ -19,7 +19,10 @@ namespace SmartHnl.API.Features.Inventario.DTOs
         public string ProductId { get; set; } = null!;
         public string Type { get; set; } = "ENTRADA"; // ENTRADA o SALIDA
         public decimal Quantity { get; set; }
+        public decimal? CostUnit { get; set; }
+        public string? Reference { get; set; }
         public string? Reason { get; set; }
+        public string? Notes { get; set; }
     }
 
     public class SerieDto

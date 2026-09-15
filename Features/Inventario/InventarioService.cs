@@ -52,23 +52,29 @@ namespace SmartHnl.API.Features.Inventario
             var product = await _context.Productos.FindAsync(dto.ProductId);
             if (product == null) return false;
 
-            decimal newStock = dto.Type == "ENTRADA" 
+            var adjType = dto.Type?.ToUpper() == "ENTRADA" ? "ENTRADA" : "SALIDA";
+
+            decimal newStock = adjType == "ENTRADA" 
                 ? product.Stock + dto.Quantity 
                 : product.Stock - dto.Quantity;
 
             if (newStock < 0) newStock = 0;
             product.Stock = newStock;
 
+            var unitCost = dto.CostUnit ?? product.PurchasePrice;
+            var refStr = !string.IsNullOrWhiteSpace(dto.Reference) ? dto.Reference.Trim() : $"AJUSTE-{DateTime.Now:yyyyMMddHHmmss}";
+            var notesStr = !string.IsNullOrWhiteSpace(dto.Notes) ? dto.Notes.Trim() : (!string.IsNullOrWhiteSpace(dto.Reason) ? dto.Reason.Trim() : $"Ajuste manual de {adjType.ToLower()}");
+
             var kardex = new Kardex
             {
                 ProductId = product.Id,
                 Date = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-                Type = "AJUSTE",
+                Type = adjType,
                 Quantity = dto.Quantity,
-                CostUnit = product.PurchasePrice,
+                CostUnit = unitCost,
                 StockAfter = newStock,
-                Reference = $"AJUSTE DE {dto.Type}",
-                Notes = dto.Reason ?? "Ajuste manual de inventario"
+                Reference = refStr,
+                Notes = notesStr
             };
 
             await _context.KardexEntries.AddAsync(kardex);
