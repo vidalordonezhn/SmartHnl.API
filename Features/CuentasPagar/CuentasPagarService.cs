@@ -1,6 +1,6 @@
 using SmartHnl.API.Data;
 using SmartHnl.API.Entities;
-using SmartHnl.API.Features.CuentasCobrar.DTOs;
+using SmartHnl.API.Features.CuentasPagar.DTOs;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -19,17 +19,20 @@ namespace SmartHnl.API.Features.CuentasPagar
             _context = context;
         }
 
-        public async Task<List<CuentaPorCobrarDto>> GetAllAsync()
+        public async Task<List<CuentaPorPagarDto>> GetAllAsync()
         {
             return await _context.CuentasPorPagar
                 .AsNoTracking()
+                .Include(c => c.Provider)
                 .OrderByDescending(c => c.DueDate)
-                .Select(c => new CuentaPorCobrarDto
+                .Select(c => new CuentaPorPagarDto
                 {
                     Id = c.Id,
-                    InvoiceId = c.PurchaseId,
-                    InvoiceNumber = c.PurchaseNumber,
-                    ClientId = c.ProviderId,
+                    PurchaseId = c.PurchaseId,
+                    PurchaseNumber = c.PurchaseNumber,
+                    ProviderId = c.ProviderId,
+                    ProviderName = c.Provider != null ? c.Provider.Name : null,
+                    ProviderRtn = c.Provider != null ? c.Provider.Rtn : null,
                     TotalAmount = c.TotalAmount,
                     PaidAmount = c.PaidAmount,
                     Balance = c.Balance,
@@ -39,7 +42,7 @@ namespace SmartHnl.API.Features.CuentasPagar
                 }).ToListAsync();
         }
 
-        public async Task<bool> AddPaymentAsync(string id, RegistrarAbonoDto dto)
+        public async Task<bool> AddPaymentAsync(string id, RegistrarPagoProveedorDto dto)
         {
             var cxp = await _context.CuentasPorPagar.FindAsync(id);
             if (cxp == null || cxp.Balance <= 0) return false;

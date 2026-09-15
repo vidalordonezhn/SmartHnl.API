@@ -1,5 +1,4 @@
-using SmartHnl.API.Features.CuentasCobrar.DTOs;
-using SmartHnl.API.Features.CuentasPagar;
+using SmartHnl.API.Features.CuentasPagar.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -22,10 +21,10 @@ namespace SmartHnl.API.Features.CuentasPagar
         public async Task<IActionResult> GetAll() => Ok(await _service.GetAllAsync());
 
         [HttpPost("{id}/payment")]
-        public async Task<IActionResult> AddPayment(string id, [FromBody] RegistrarAbonoDto dto)
+        public async Task<IActionResult> AddPayment(string id, [FromBody] RegistrarPagoProveedorDto dto)
         {
             var ok = await _service.AddPaymentAsync(id, dto);
-            if (!ok) return BadRequest(new { error = "No se pudo registrar el pago." });
+            if (!ok) return BadRequest(new { error = "No se pudo registrar el pago al proveedor." });
             return Ok(new { message = "Pago registrado exitosamente." });
         }
     }
